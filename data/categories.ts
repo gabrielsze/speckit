@@ -4,7 +4,7 @@ export const categories: Record<EventCategory, CategoryMeta> = {
   'Conference': {
     name: 'Conference',
     displayName: 'Conference',
-    color: 'bg-blue-500',
+    color: 'bg-blue-600',
     bgColor: 'bg-blue-100',
     textColor: 'text-blue-700',
     ringColor: 'ring-blue-500',
@@ -13,7 +13,7 @@ export const categories: Record<EventCategory, CategoryMeta> = {
   'Workshop': {
     name: 'Workshop',
     displayName: 'Workshop',
-    color: 'bg-green-500',
+    color: 'bg-green-600',
     bgColor: 'bg-green-100',
     textColor: 'text-green-700',
     ringColor: 'ring-green-500',
@@ -22,7 +22,7 @@ export const categories: Record<EventCategory, CategoryMeta> = {
   'Networking': {
     name: 'Networking',
     displayName: 'Networking',
-    color: 'bg-purple-500',
+    color: 'bg-purple-600',
     bgColor: 'bg-purple-100',
     textColor: 'text-purple-700',
     ringColor: 'ring-purple-500',
@@ -31,7 +31,7 @@ export const categories: Record<EventCategory, CategoryMeta> = {
   'Tech Talk': {
     name: 'Tech Talk',
     displayName: 'Tech Talk',
-    color: 'bg-orange-500',
+    color: 'bg-orange-600',
     bgColor: 'bg-orange-100',
     textColor: 'text-orange-700',
     ringColor: 'ring-orange-500',

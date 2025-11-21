@@ -54,17 +54,17 @@ export default function EventsClient() {
       <div className="mt-8">
         {/* Results count and sorting */}
         <div className="flex justify-between items-center mb-6">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             {sortedEvents.length} {sortedEvents.length === 1 ? 'event' : 'events'} found
           </p>
           
           <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="text-sm text-gray-600">Sort by:</label>
+            <label htmlFor="sort" className="text-sm text-gray-600 dark:text-gray-300">Sort by:</label>
             <select
               id="sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               <option value="date-asc">Date (Earliest First)</option>
               <option value="date-desc">Date (Latest First)</option>
@@ -82,10 +82,10 @@ export default function EventsClient() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg mb-4">No events found matching your criteria</p>
+            <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">No events found matching your criteria</p>
             <button
               onClick={() => setFilters({ categories: [], priceFilter: 'all', searchQuery: '' })}
-              className="text-indigo-600 hover:text-indigo-700 font-semibold"
+              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold"
             >
               Clear all filters
             </button>

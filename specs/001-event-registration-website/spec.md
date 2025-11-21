@@ -113,18 +113,51 @@
 
 ## Design System (POC)
 
-**Colors**: Primary gradient (#6366f1 → #8b5cf6), White background, Dark text  
-**Typography**: Modern sans-serif (Inter or System UI)  
-**Components**: Rounded cards (12px), hover shadows, pill-shaped badges  
+**Colors**: 
+- Primary gradient: `bg-gradient-to-r from-indigo-600 to-purple-600` (#6366f1 → #8b5cf6)
+- Light mode: White background (#ffffff), Dark text (#1a1a1a)
+- Dark mode: Dark background (#0a0a0a), Light text (#ededed)
+- Category badges: 600-weight colors for proper contrast (bg-blue-600, bg-green-600, bg-purple-600, bg-orange-600)
+
+**Typography**: Modern sans-serif (Inter or System UI)
+
+**Dark Mode**:
+- Enabled via `darkMode: 'class'` in Tailwind config
+- Toggle button in navigation (☀️/🌙 icon)
+- Automatic system preference detection on first load
+- User preference persisted in localStorage
+- All components support light/dark variants with proper text contrast
+
+**Components**: 
+- Rounded cards (12px)
+- Hover shadows
+- Pill-shaped badges
+- Full-width page backgrounds for consistent theming
+- Navigation with sticky positioning and dark mode support
+
 **Layout**: Max 1200px width, Grid (1/2/3 columns), Mobile-first
+
+**Accessibility**:
+- Text contrast meets WCAG standards in both light and dark modes
+- Dark mode toggle with aria-label
+- Semantic HTML structure
+- suppressHydrationWarning on html element for dark mode
 
 ## Technical Stack (POC)
 
-**HTML**: Semantic HTML5, basic ARIA labels  
-**CSS**: Flexbox/Grid, CSS variables, transitions  
-**JavaScript**: Vanilla JS for filtering, search, FAQ accordion  
-**Assets**: Placeholder images (Unsplash), basic icons  
-**Breakpoints**: Mobile < 768px, Desktop > 768px
+**Framework**: Next.js 14 with App Router, TypeScript, React  
+**Styling**: Tailwind CSS with dark mode (`darkMode: 'class'`)  
+**State Management**: React useState/useEffect for client components  
+**Images**: Next.js Image component with Unsplash placeholders  
+**Dark Mode**: Client-side toggle with localStorage persistence and system preference detection  
+**TypeScript**: Strict typing for events, FAQs, and component props  
+**Breakpoints**: Mobile < 768px, Tablet < 1024px, Desktop > 1024px
+
+**Key Configuration**:
+- Tailwind dark mode enabled via class strategy
+- CSS custom properties for background/foreground colors
+- suppressHydrationWarning on html element
+- Client components for interactive features (search, filters, dark mode toggle)
 
 ## User Scenarios (POC)
 
@@ -152,23 +185,48 @@ Homepage → Featured Events → Browse All → Filter/Search → View Event →
 ## File Structure
 ```
 devsite/
-├── index.html
-├── events.html
-├── faq.html
-├── css/
-│   └── style.css
-├── js/
-│   ├── data.js (Mock events)
-│   └── main.js (Filtering, search, FAQ)
-└── assets/
-    └── images/ (Placeholder images)
+├── app/
+│   ├── layout.tsx (Root layout with Navigation & Footer)
+│   ├── page.tsx (Homepage with Hero & Featured Events)
+│   ├── globals.css (Tailwind + dark mode CSS variables)
+│   ├── events/
+│   │   └── page.tsx (Events listing page)
+│   └── faq/
+│       └── page.tsx (FAQ accordion page)
+├── components/
+│   ├── Navigation.tsx (Header with dark mode toggle)
+│   ├── Hero.tsx (Homepage hero section)
+│   ├── Footer.tsx (Site footer)
+│   ├── EventCard.tsx (Event display card)
+│   ├── EventsClient.tsx (Client component for filtering/search)
+│   ├── FilterBar.tsx (Category and price filters)
+│   ├── SearchBar.tsx (Debounced search input)
+│   └── FAQItem.tsx (Accordion item)
+├── data/
+│   ├── events.ts (Mock event data - 20 events)
+│   ├── categories.ts (Category metadata and icons)
+│   └── faqs.ts (FAQ questions and answers)
+├── types/
+│   └── index.ts (TypeScript type definitions)
+├── lib/
+│   └── utils.ts (Utility functions for filtering, sorting, formatting)
+├── public/
+│   └── images/ (Event placeholder images)
+├── tailwind.config.ts (Tailwind configuration with dark mode)
+├── tsconfig.json
+├── next.config.js
+└── package.json
 ```
 
 ## Implementation Phases
-1. HTML structure + mock data
-2. CSS styling
-3. JS functionality (filter, search, FAQ)
-4. Responsive polish
+1. Next.js project setup with TypeScript and Tailwind CSS
+2. Component structure and layout (Navigation, Footer, pages)
+3. Mock data creation (events, categories, FAQs)
+4. Styling with Tailwind (light mode first)
+5. Dark mode implementation (toggle, persistence, styling)
+6. Interactive features (filtering, search, FAQ accordion)
+7. Responsive polish and accessibility improvements
+8. Text contrast fixes for dark backgrounds
 
 ## Acceptance Criteria (POC)
 
@@ -205,18 +263,35 @@ devsite/
 - Mobile landscape → Maintain usability
 
 ## POC Success Criteria
-- [ ] 3 pages functional (Landing, Events, FAQ)
-- [ ] 20 mock events with realistic data
-- [ ] Category and price filtering works
-- [ ] Search functionality works
-- [ ] Mobile and desktop responsive
-- [ ] Modern, clean design aesthetic
-- [ ] No console errors
-- [ ] Works on Chrome and Safari
+- [x] 3 pages functional (Landing, Events, FAQ)
+- [x] 20 mock events with realistic data
+- [x] Category and price filtering works
+- [x] Search functionality works with debouncing
+- [x] Mobile and desktop responsive
+- [x] Modern, clean design aesthetic
+- [x] Dark mode toggle with localStorage persistence
+- [x] Proper text contrast in both light and dark modes
+- [x] Full-width page backgrounds for consistent theming
+- [x] Navigation gradient logo using Tailwind native utilities
+- [x] TypeScript strict typing throughout
+- [x] No console errors
+- [x] Works on Chrome and Safari
+
+## Dark Mode Features Implemented
+- **Toggle Button**: Sun/moon icon in navigation bar
+- **Persistence**: User preference saved in localStorage
+- **Auto-detection**: Respects system preference on first visit
+- **Full Coverage**: All components support dark mode variants
+- **Text Contrast**: All text meets WCAG standards in both modes
+- **Backgrounds**: Full-width page backgrounds (white/dark gray)
+- **Interactive Elements**: Buttons, inputs, cards all styled for both modes
+- **Gradients**: Primary gradient maintained in both themes
 
 ---
 
-**Specification Version**: 1.0.0-POC  
+**Specification Version**: 2.0.0-POC  
 **Created**: 2025-11-21  
-**Scope**: Proof of Concept  
-**Status**: Ready for Implementation
+**Last Updated**: 2025-11-21  
+**Scope**: Proof of Concept - Complete with Dark Mode  
+**Status**: Implemented  
+**Technology**: Next.js 14, TypeScript, Tailwind CSS

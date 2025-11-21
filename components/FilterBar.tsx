@@ -27,13 +27,13 @@ export default function FilterBar({
   const allCategories: EventCategory[] = ['Conference', 'Workshop', 'Networking', 'Tech Talk'];
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Events</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filter Events</h3>
         
         {/* Category Filter */}
         <div className="mb-6">
-          <p className="text-sm font-medium text-gray-700 mb-3">Categories</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Categories</p>
           <div className="flex flex-wrap gap-2">
             {allCategories.map(category => {
               const isSelected = selectedCategories.includes(category);
@@ -59,7 +59,7 @@ export default function FilterBar({
 
         {/* Price Filter */}
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-3">Price</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Price</p>
           <div className="flex gap-2">
             {(['all', 'free', 'paid'] as const).map(option => (
               <button
@@ -85,7 +85,7 @@ export default function FilterBar({
             onCategoryChange([]);
             onPriceChange('all');
           }}
-          className="w-full text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+          className="w-full text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
         >
           Clear all filters
         </button>

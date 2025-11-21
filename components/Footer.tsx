@@ -1,9 +1,9 @@
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white mt-20">
+    <footer className="bg-gray-900 dark:bg-gray-950 text-white mt-20">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h3 className="text-2xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+          <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             EventHub
           </h3>
           <p className="text-gray-400 mb-6">

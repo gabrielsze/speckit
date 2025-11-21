@@ -32,7 +32,7 @@ export default function SearchBar({ searchQuery, onSearchChange }: SearchBarProp
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
           placeholder="Search events by title or description..."
-          className="w-full px-4 py-3 pl-12 pr-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-500"
+          className="w-full px-4 py-3 pl-12 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 bg-white dark:bg-gray-800"
         />
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
           🔍

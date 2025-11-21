@@ -7,14 +7,14 @@ export default function Home() {
   const featuredEvents = events.filter(e => e.featured).slice(0, 6);
 
   return (
-    <div>
+    <div className="bg-white dark:bg-gray-900">
       <Hero />
       
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">
           Featured Events
         </h2>
-        <p className="text-gray-600 text-center mb-12">
+        <p className="text-gray-600 dark:text-gray-300 text-center mb-12">
           Handpicked events you don't want to miss
         </p>
         

@@ -16,7 +16,7 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
       <div className="relative h-48 w-full">
         <Image
           src={event.image}
@@ -42,21 +42,21 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
       </div>
       
       <div className="p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
           {event.title}
         </h3>
         
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+        <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
           {truncateText(event.description, 120)}
         </p>
         
         <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-gray-700">
+          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
             <span className="mr-2">📅</span>
             <span>{formatDate(event.date)} at {formatTime(event.time)}</span>
           </div>
           
-          <div className="flex items-center text-sm text-gray-700">
+          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
             <span className="mr-2">📍</span>
             <span>{event.location}</span>
           </div>
@@ -64,7 +64,7 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center text-sm font-semibold">
               <span className="mr-2">💵</span>
-              <span className={event.price === 0 ? 'text-green-600' : 'text-gray-900'}>
+              <span className={event.price === 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-white'}>
                 {formatPrice(event.price)}
               </span>
             </div>
@@ -73,7 +73,7 @@ export default function EventCard({ event, priority = false }: EventCardProps) {
         
         <button
           onClick={handleRegister}
-          className="w-full bg-gradient-primary text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity duration-200"
+          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity duration-200 shadow-md"
         >
           Register Now
         </button>
