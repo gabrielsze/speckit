@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { Event } from '@/types';
 import { formatDate, formatTime, formatPrice, truncateText } from '@/lib/utils';

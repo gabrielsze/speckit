@@ -27,8 +27,8 @@ body {
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   }
   
-  .container-padding {
-    @apply px-4 sm:px-6 lg:px-8;
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
@@ -37,10 +37,3 @@ button, a, input, select {
   transition: all 0.2s ease-in-out;
 }
 
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
