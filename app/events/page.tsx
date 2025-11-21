@@ -1,7 +1,7 @@
 import EventsClient from '@/components/EventsClient';
 
 export const metadata = {
-  title: 'Browse Events - EventHub',
+  title: 'Browse Events - Eventure',
   description: 'Discover and register for conferences, workshops, and networking events',
 };
 

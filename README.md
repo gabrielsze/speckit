@@ -1,4 +1,4 @@
-# EventHub - Modern Event Registration Website
+# Eventure - Modern Event Registration Website
 
 A sleek and modern event registration website built with Next.js 14, featuring static site generation, responsive design, and elegant filtering capabilities.
 

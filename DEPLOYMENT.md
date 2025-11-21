@@ -1,4 +1,4 @@
-# Deployment Guide - EventHub
+# Deployment Guide - Eventure
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ vercel
 # - Set up and deploy? Yes
 # - Which scope? [Your account]
 # - Link to existing project? No
-# - Project name: eventhub
+# - Project name: eventure
 # - Directory: ./
 # - Override settings? No
 
@@ -167,19 +167,19 @@ npm run build
 aws configure
 
 # 4. Create S3 bucket
-aws s3 mb s3://eventhub-static-site
+aws s3 mb s3://eventure-static-site
 
 # 5. Upload files
-aws s3 sync out/ s3://eventhub-static-site --delete
+aws s3 sync out/ s3://eventure-static-site --delete
 
 # 6. Configure bucket for static hosting
-aws s3 website s3://eventhub-static-site \
+aws s3 website s3://eventure-static-site \
   --index-document index.html \
   --error-document 404.html
 
 # 7. Make bucket public
 aws s3api put-bucket-policy \
-  --bucket eventhub-static-site \
+  --bucket eventure-static-site \
   --policy file://bucket-policy.json
 
 # 8. Create CloudFront distribution (optional)
@@ -195,7 +195,7 @@ aws s3api put-bucket-policy \
     "Effect": "Allow",
     "Principal": "*",
     "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::eventhub-static-site/*"
+    "Resource": "arn:aws:s3:::eventure-static-site/*"
   }]
 }
 ```
@@ -225,7 +225,7 @@ Simple deployment with GitHub integration.
 Create `.env.production.local` if needed:
 ```bash
 # Example environment variables
-NEXT_PUBLIC_SITE_URL=https://eventhub.com
+NEXT_PUBLIC_SITE_URL=https://eventure.com
 NEXT_PUBLIC_GA_ID=UA-XXXXX-X
 ```
 

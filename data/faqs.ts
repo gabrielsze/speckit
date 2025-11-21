@@ -46,7 +46,7 @@ export const faqs: FAQItem[] = [
   {
     id: 8,
     question: "What should I do if I'm having technical issues?",
-    answer: "If you're experiencing technical difficulties, please email support@eventhub.com or use the live chat feature. Our support team is available 24/7 to assist you.",
+    answer: "If you're experiencing technical difficulties, please email support@eventure.com or use the live chat feature. Our support team is available 24/7 to assist you.",
     category: "Support"
   },
   {

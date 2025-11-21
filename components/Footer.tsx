@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            EventHub
+            Eventure
           </h3>
           <p className="text-gray-400 mb-6">
             Discover and attend amazing events. Connect, learn, and grow.
@@ -15,7 +15,7 @@ export default function Footer() {
             <a href="/faq" className="text-gray-400 hover:text-white transition-colors">FAQ</a>
           </div>
           <p className="text-gray-500 text-sm">
-            © 2025 EventHub. All rights reserved.
+            © 2025 Eventure. All rights reserved.
           </p>
         </div>
       </div>
