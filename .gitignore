@@ -1,0 +1,61 @@
+# ---- Node / Package Artifacts ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# Leave lockfile committed for reproducible builds
+# package-lock.json
+
+# ---- Build Outputs ----
+.next/
+out/
+dist/
+coverage/
+
+# ---- TypeScript ----
+tsconfig.tsbuildinfo
+
+# ---- Environment Files ----
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ---- Logs ----
+logs/
+*.log
+log/
+
+# ---- OS / Editor Junk ----
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# ---- Temporary & Cache ----
+.tmp/
+tmp/
+.cache/
+
+# ---- Images Optimization Cache (if added later) ----
+.images-cache/
+
+# ---- Misc ----
+# Ignore exported static HTML if rebuilding often (optional)
+# export/
+
+# ---- Do NOT Ignore (Important Project Artifacts) ----
+!.specify/
+!specs/
+!docs/
+README.md
+README-SPECKIT.md
+IMPLEMENTATION_SUMMARY.md
+DEPLOYMENT.md
