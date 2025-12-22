@@ -37,3 +37,19 @@ export interface CategoryMeta {
   ringColor: string;
   icon: string;
 }
+// Submitted Events (002-event-submission feature)
+export interface SubmittedEvent {
+  id: string;
+  title: string;
+  description: string;
+  eventDate: string;
+  startTime: string;
+  endTime?: string;
+  location: string;
+  category: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  website?: string;
+  imageUrl?: string;
+  createdAt: string;
+}
