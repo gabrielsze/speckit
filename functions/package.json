@@ -1,0 +1,15 @@
+{
+  "name": "eventure-functions",
+  "version": "1.0.0",
+  "description": "Azure Functions for Eventure event submission API",
+  "main": "index.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.4.0",
+    "@azure/storage-blob": "^12.20.0",
+    "mssql": "^11.0.0",
+    "uuid": "^9.0.1"
+  }
+}
