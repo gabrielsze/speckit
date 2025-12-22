@@ -1,0 +1,31 @@
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+use_existing_resource_group  = true
+existing_resource_group_name = "rg-eventure-webapp-dev"
+
+project_name = "eventure"
+environment  = "dev"
+location     = "eastus"
+
+tags = {
+  Project     = "Eventure"
+  ManagedBy   = "Terraform"
+  Environment = "dev"
+  Owner       = "your-name"
+}
+
+sql_admin_username = "sqladmin"
+sql_admin_password = ""
+sql_db_sku         = "Basic"
+sql_db_max_size_gb = 2
+
+storage_replication_type = "LRS"
+
+allowed_origins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+]
+
+dev_ip_address = ""
+
+log_level = "info"
