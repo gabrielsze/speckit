@@ -24,12 +24,12 @@ description: "Tasks for Event Submission Page feature"
 
 **Purpose**: Initialize environment and scaffold structure
 
-- [ ] T001 Create environment example file at .env.example
-- [ ] T002 [P] Add SQL driver dependency (`mssql`) in package.json
-- [ ] T003 [P] Add Azure Blob dependency (`@azure/storage-blob`) in package.json
-- [ ] T004 [P] Add validation dependency (`zod`) in package.json
-- [ ] T005 Scaffold API functions directory at api/events/submit/index.ts
-- [ ] T006 Scaffold image upload API directory at api/events/upload-image/index.ts
+- [x] T001 Create environment example file at .env.example
+- [x] T002 [P] Add SQL driver dependency (`mssql`) in package.json
+- [x] T003 [P] Add Azure Blob dependency (`@azure/storage-blob`) in package.json
+- [x] T004 [P] Add validation dependency (`zod`) in package.json
+- [x] T005 Scaffold API functions directory at api/events/submit/index.ts
+- [x] T006 Scaffold image upload API directory at api/events/upload-image/index.ts
 
 ---
 
@@ -39,13 +39,13 @@ description: "Tasks for Event Submission Page feature"
 
 **CRITICAL**: User story work starts only after this phase completes
 
-- [ ] T007 Create SQL connection utility in lib/db.ts
-- [ ] T008 [P] Create Blob client helper in lib/blob.ts
-- [ ] T009 [P] Create validation schema module in lib/validation.ts
-- [ ] T010 Create database schema script for `submitted_events` at db/schema.sql
-- [ ] T011 Add `SubmittedEvent` type to types/index.ts
-- [ ] T012 Create server-side config loader for env vars in lib/config.ts
-- [ ] T013 [P] Add default placeholder image at public/images/placeholder-event.png
+- [x] T007 Create SQL connection utility in lib/db.ts
+- [x] T008 [P] Create Blob client helper in lib/blob.ts
+- [x] T009 [P] Create validation schema module in lib/validation.ts
+- [x] T010 Create database schema script for `submitted_events` at db/schema.sql
+- [x] T011 Add `SubmittedEvent` type to types/index.ts
+- [x] T012 Create server-side config loader for env vars in lib/config.ts
+- [x] T013 [P] Add default placeholder image at public/images/placeholder-event.png
 
 **Checkpoint**: Foundation ready — user stories can start in parallel
 
@@ -59,12 +59,12 @@ description: "Tasks for Event Submission Page feature"
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement `EventSubmissionService` to persist events in lib/services/eventSubmission.ts
-- [ ] T015 [US1] Implement POST handler for submission in api/events/submit/index.ts
-- [ ] T016 [US1] Build submission form UI in app/submit/page.tsx (title, description, date, time, location, category)
-- [ ] T017 [US1] Wire client to POST `process.env.NEXT_PUBLIC_API_BASE` + `/events/submit` in app/submit/page.tsx
-- [ ] T018 [US1] Show success confirmation with returned `id` in app/submit/page.tsx
-- [ ] T019 [P] [US1] Add “Submit an Event” link to navigation in components/Navigation.tsx
+- [x] T014 [P] [US1] Implement `EventSubmissionService` to persist events in lib/services/eventSubmission.ts
+- [x] T015 [US1] Implement POST handler for submission in api/events/submit/index.ts
+- [x] T016 [US1] Build submission form UI in app/submit/page.tsx (title, description, date, time, location, category)
+- [x] T017 [US1] Wire client to POST `process.env.NEXT_PUBLIC_API_BASE` + `/events/submit` in app/submit/page.tsx
+- [x] T018 [US1] Show success confirmation with returned `id` in app/submit/page.tsx
+- [x] T019 [P] [US1] Add "Submit an Event" link to navigation in components/Navigation.tsx
 
 **Checkpoint**: US1 fully functional and testable independently
 
@@ -78,12 +78,12 @@ description: "Tasks for Event Submission Page feature"
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement zod validation schema for form fields in lib/validation.ts
-- [ ] T021 [US2] Add inline error messages and field-level validation in app/submit/page.tsx
-- [ ] T022 [US2] Enforce “date not in past” rule in app/submit/page.tsx
-- [ ] T023 [US2] Add server-side validation before insert in api/events/submit/index.ts
-- [ ] T024 [US2] Disable submit button during request to prevent duplicates in app/submit/page.tsx
-- [ ] T025 [US2] Preserve form data on failure and focus first error in app/submit/page.tsx
+- [x] T020 [P] [US2] Implement zod validation schema for form fields in lib/validation.ts
+- [x] T021 [US2] Add inline error messages and field-level validation in app/submit/page.tsx
+- [x] T022 [US2] Enforce "date not in past" rule in app/submit/page.tsx
+- [x] T023 [US2] Add server-side validation before insert in api/events/submit/index.ts
+- [x] T024 [US2] Disable submit button during request to prevent duplicates in app/submit/page.tsx
+- [x] T025 [US2] Preserve form data on failure and focus first error in app/submit/page.tsx
 
 **Checkpoint**: US2 works independently (errors displayed; submission blocked on invalid input)
 
@@ -97,10 +97,10 @@ description: "Tasks for Event Submission Page feature"
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Add contact fields (email, phone, website) to form in app/submit/page.tsx
-- [ ] T027 [US3] Map optional contact fields in client request in app/submit/page.tsx
-- [ ] T028 [US3] Persist contact fields in service layer in lib/services/eventSubmission.ts
-- [ ] T029 [US3] Validate email/URL formats server-side in api/events/submit/index.ts
+- [x] T026 [P] [US3] Add contact fields (email, phone, website) to form in app/submit/page.tsx
+- [x] T027 [US3] Map optional contact fields in client request in app/submit/page.tsx
+- [x] T028 [US3] Persist contact fields in service layer in lib/services/eventSubmission.ts
+- [x] T029 [US3] Validate email/URL formats server-side in api/events/submit/index.ts
 
 **Checkpoint**: US3 independently functional; optional fields handled correctly
 
@@ -114,11 +114,11 @@ description: "Tasks for Event Submission Page feature"
 
 ### Implementation for User Story 4
 
-- [ ] T030 [P] [US4] Implement Blob upload helper functions in lib/blob.ts
-- [ ] T031 [US4] Implement POST handler for image upload in api/events/upload-image/index.ts
-- [ ] T032 [US4] Add file input and client upload logic in app/submit/page.tsx
-- [ ] T033 [US4] Persist returned `imageUrl` alongside event in lib/services/eventSubmission.ts
-- [ ] T034 [US4] Use placeholder image when no upload provided in app/submit/page.tsx
+- [x] T030 [P] [US4] Implement Blob upload helper functions in lib/blob.ts
+- [x] T031 [US4] Implement POST handler for image upload in api/events/upload-image/index.ts
+- [x] T032 [US4] Add file input and client upload logic in app/submit/page.tsx
+- [x] T033 [US4] Persist returned `imageUrl` alongside event in lib/services/eventSubmission.ts
+- [x] T034 [US4] Use placeholder image when no upload provided in app/submit/page.tsx
 
 **Checkpoint**: US4 independently functional; image uploads and fallbacks work
 
