@@ -132,15 +132,15 @@ export default function SubmitEventPage() {
       const payload = {
         title: formData.title,
         description: formData.description,
-        eventDate: formData.eventDate,
-        startTime: formData.startTime,
-        endTime: formData.endTime,
+        event_date: formData.eventDate,
+        start_time: formData.startTime,
+        end_time: formData.endTime,
         location: formData.location,
         category: formData.category,
-        contactEmail: formData.contactEmail,
-        contactPhone: formData.contactPhone,
+        contact_email: formData.contactEmail,
+        contact_phone: formData.contactPhone,
         website: formData.website,
-        imageUrl: formData.imageUrl !== PLACEHOLDER_IMAGE ? formData.imageUrl : undefined,
+        image_url: formData.imageUrl !== PLACEHOLDER_IMAGE ? formData.imageUrl : undefined,
       };
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/events/submit`, {
