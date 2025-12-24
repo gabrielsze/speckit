@@ -6,6 +6,11 @@ app.http('uploadImage', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: 'events/upload-image',
+  cors: {
+    allowedOrigins: ['*'],
+    allowedMethods: ['POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
+  },
   handler: async (request, context) => {
     const correlationId = uuid();
     context.log(`[${correlationId}] Image upload request received`);

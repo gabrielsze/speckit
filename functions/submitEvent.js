@@ -6,6 +6,11 @@ app.http('submitEvent', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: 'events/submit',
+  cors: {
+    allowedOrigins: ['*'],
+    allowedMethods: ['POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
+  },
   handler: async (request, context) => {
     const correlationId = uuid();
     context.log(`[${correlationId}] Event submission request received`);
