@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.0"
+    }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.0"
@@ -19,6 +23,10 @@ provider "azurerm" {
     }
   }
   subscription_id = var.subscription_id
+}
+
+provider "azuread" {
+  tenant_id = data.azurerm_client_config.current.tenant_id
 }
 
 # Data source for existing resource group (if using existing)
@@ -37,7 +45,7 @@ resource "azurerm_resource_group" "main" {
 
 # Local value to reference the correct resource group
 locals {
-  resource_group_name = var.use_existing_resource_group ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.main[0].name
+  resource_group_name     = var.use_existing_resource_group ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.main[0].name
   resource_group_location = var.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : azurerm_resource_group.main[0].location
 }
 
@@ -48,7 +56,7 @@ resource "azurerm_storage_account" "main" {
   location                 = local.resource_group_location
   account_tier             = "Standard"
   account_replication_type = var.storage_replication_type
-  
+
   blob_properties {
     cors_rule {
       allowed_headers    = ["*"]
@@ -86,12 +94,12 @@ resource "azurerm_service_plan" "functions" {
   resource_group_name = local.resource_group_name
   location            = local.resource_group_location
   os_type             = "Linux"
-  sku_name            = "Y1"  # Consumption plan (serverless)
+  sku_name            = "Y1" # Consumption plan (serverless)
 
   tags = var.tags
 }
 
-# SQL Server
+# SQL Server with Entra ID admin
 resource "azurerm_mssql_server" "main" {
   name                         = "sql-${var.project_name}-${var.environment}"
   resource_group_name          = local.resource_group_name
@@ -100,6 +108,12 @@ resource "azurerm_mssql_server" "main" {
   administrator_login          = var.sql_admin_username
   administrator_login_password = var.sql_admin_password != "" ? var.sql_admin_password : random_password.sql_admin[0].result
   minimum_tls_version          = "1.2"
+
+  azuread_administrator {
+    login_username              = data.azurerm_client_config.current.object_id
+    object_id                   = data.azurerm_client_config.current.object_id
+    azuread_authentication_only = false # Allow both AAD and SQL auth for now
+  }
 
   tags = var.tags
 }
@@ -143,12 +157,12 @@ resource "azurerm_linux_function_app" "main" {
   storage_account_name       = azurerm_storage_account.functions.name
   storage_account_access_key = azurerm_storage_account.functions.primary_access_key
   service_plan_id            = azurerm_service_plan.functions.id
-  
-  builtin_logging_enabled    = false
+
+  builtin_logging_enabled = false
 
   site_config {
     application_stack {
-      node_version = "18"
+      node_version = "20"
     }
 
     cors {
@@ -158,21 +172,18 @@ resource "azurerm_linux_function_app" "main" {
   }
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME"       = "node"
-    "WEBSITE_NODE_DEFAULT_VERSION"   = "~18"
-    "WEBSITE_RUN_FROM_PACKAGE"       = "1"
-    
-    # SQL Database
+    "FUNCTIONS_WORKER_RUNTIME"     = "node"
+    "WEBSITE_NODE_DEFAULT_VERSION" = "~20"
+    "WEBSITE_RUN_FROM_PACKAGE"     = "1"
+
+    # SQL Database (Entra ID auth via managed identity)
     "SQL_SERVER"   = azurerm_mssql_server.main.fully_qualified_domain_name
     "SQL_DATABASE" = azurerm_mssql_database.main.name
-    "SQL_USER"     = var.sql_admin_username
-    "SQL_PASSWORD" = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_password.id})"
-    
-    # Blob Storage
-    "BLOB_ACCOUNT"            = azurerm_storage_account.main.name
-    "BLOB_CONTAINER"          = azurerm_storage_container.events_images.name
-    "BLOB_CONNECTION_STRING"  = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.blob_connection_string.id})"
-    
+
+    # Blob Storage (Entra ID auth via managed identity)
+    "BLOB_ACCOUNT"   = azurerm_storage_account.main.name
+    "BLOB_CONTAINER" = azurerm_storage_container.events_images.name
+
     # App Config
     "APP_ENV"   = var.environment
     "LOG_LEVEL" = var.log_level
@@ -185,61 +196,25 @@ resource "azurerm_linux_function_app" "main" {
   tags = var.tags
 }
 
-# Key Vault for secrets
-resource "azurerm_key_vault" "main" {
-  name                        = "kv-${var.project_name}-${var.environment}"
-  location                    = local.resource_group_location
-  resource_group_name         = local.resource_group_name
-  enabled_for_disk_encryption = true
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-  soft_delete_retention_days  = 7
-  purge_protection_enabled    = false
-
-  sku_name = "standard"
-
-  # Access policy for current user/service principal (Terraform)
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
-
-    secret_permissions = [
-      "Get",
-      "List",
-      "Set",
-      "Delete",
-      "Purge",
-      "Recover"
-    ]
-  }
-
-  tags = var.tags
+# Storage Blob Data Contributor role for Function App on Blob Storage
+resource "azurerm_role_assignment" "function_app_blob_contributor" {
+  scope                = azurerm_storage_account.main.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
 }
 
-# Store SQL Password in Key Vault
-resource "azurerm_key_vault_secret" "sql_password" {
-  name         = "sql-admin-password"
-  value        = var.sql_admin_password != "" ? var.sql_admin_password : random_password.sql_admin[0].result
-  key_vault_id = azurerm_key_vault.main.id
-}
+# Note: SQL Database AAD user creation must be done manually or via a null_resource with Azure CLI
+# This is because Terraform AzureRM provider doesn't support creating AAD users directly in SQL Database
+# You'll need to run this SQL command after infrastructure is provisioned:
+# 
+# CREATE USER [func-${var.project_name}-${var.environment}] FROM EXTERNAL PROVIDER;
+# ALTER ROLE db_datareader ADD MEMBER [func-${var.project_name}-${var.environment}];
+# ALTER ROLE db_datawriter ADD MEMBER [func-${var.project_name}-${var.environment}];
+# ALTER ROLE db_ddladmin ADD MEMBER [func-${var.project_name}-${var.environment}];
+#
+# OR grant full db_owner:
+# ALTER ROLE db_owner ADD MEMBER [func-${var.project_name}-${var.environment}];
 
-# Store Blob Connection String in Key Vault
-resource "azurerm_key_vault_secret" "blob_connection_string" {
-  name         = "blob-connection-string"
-  value        = azurerm_storage_account.main.primary_connection_string
-  key_vault_id = azurerm_key_vault.main.id
-}
-
-# Access policy for Function App managed identity (added after Function App is created)
-resource "azurerm_key_vault_access_policy" "function_app" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_linux_function_app.main.identity[0].principal_id
-
-  secret_permissions = [
-    "Get",
-    "List"
-  ]
-}
 
 # Data source for current client config
 data "azurerm_client_config" "current" {}

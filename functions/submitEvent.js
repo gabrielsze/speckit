@@ -1,5 +1,6 @@
 const { app } = require('@azure/functions');
 const sql = require('mssql');
+const { DefaultAzureCredential, ManagedIdentityCredential } = require('@azure/identity');
 const { v4: uuid } = require('uuid');
 
 app.http('submitEvent', {
@@ -29,15 +30,20 @@ app.http('submitEvent', {
 
       context.log(`[${correlationId}] Env vars - Server: ${process.env.SQL_SERVER}, DB: ${process.env.SQL_DATABASE}`);
 
-      // Connect to SQL
+      // Use ManagedIdentityCredential in Azure (MSI endpoint available), DefaultAzureCredential locally
+      const isAzure = !!(process.env.MSI_ENDPOINT || process.env.IDENTITY_ENDPOINT || process.env.AZURE_WEBSITE_INSTANCE_ID);
+      const credential = isAzure ? new ManagedIdentityCredential() : new DefaultAzureCredential();
+      const tokenResponse = await credential.getToken('https://database.windows.net/');
+      context.log(`[${correlationId}] Acquired access token for SQL`);
+
+      // Connect to SQL with access token
       const pool = new sql.ConnectionPool({
         server: process.env.SQL_SERVER,
         database: process.env.SQL_DATABASE,
         authentication: {
-          type: 'default',
+          type: 'azure-active-directory-access-token',
           options: {
-            userName: process.env.SQL_USER,
-            password: process.env.SQL_PASSWORD,
+            token: tokenResponse.token,
           }
         },
         options: {
@@ -49,6 +55,7 @@ app.http('submitEvent', {
 
       await pool.connect();
       context.log(`[${correlationId}] Connected to database`);
+
 
       const eventId = uuid();
       const now = new Date();

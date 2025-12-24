@@ -8,11 +8,11 @@ This directory contains Terraform configuration for deploying Azure infrastructu
 - **Storage Account**: Blob storage for event images (`eventuredevsa`)
 - **Storage Account**: Function App storage (`eventuredevfn`)
 - **Blob Container**: `events-images` container with public read access
-- **Azure SQL Server**: SQL Server instance (`sql-eventure-dev`)
+- **Azure SQL Server**: SQL Server instance with Entra ID authentication (`sql-eventure-dev`)
 - **Azure SQL Database**: Database for submitted events (`sqldb-eventure-dev`)
 - **SQL Firewall Rules**: Allow Azure services and optional developer IP
-- **Function App**: Serverless API endpoints (`func-eventure-dev`) - Consumption Plan (Y1)
-- **Key Vault**: Secure storage for secrets (`kv-eventure-dev`)
+- **Function App**: Serverless API endpoints with system-assigned managed identity (`func-eventure-dev`)
+- **Role Assignments**: Storage Blob Data Contributor for Function App
 
 ## 🚀 Prerequisites
 
@@ -91,10 +91,10 @@ terraform plan
 
 Review the resources that will be created. You should see:
 - Storage accounts (2)
-- SQL Server and Database
-- Function App
-- Key Vault
-- Firewall rules and secrets
+- SQL Server and Database (with Entra ID admin)
+- Function App with managed identity
+- Role assignments for storage access
+- Firewall rules
 
 ### 5. Deploy Infrastructure
 
@@ -123,15 +123,39 @@ terraform output function_app_url
 terraform output -raw sql_admin_password
 ```
 
-### 7. Save Environment Variables
+### 7. Set Up SQL Database Azure AD Access
+
+**IMPORTANT**: After Terraform deployment, you need to grant the Function App's managed identity access to SQL Database:
 
 ```bash
-# Save to .env.local in project root
+# Get Function App name from Terraform
+FUNCTION_APP_NAME=$(terraform output -raw function_app_name)
+
+# Connect to SQL Database as Azure AD admin and run:
+# Use Azure Data Studio or Azure Portal Query Editor
+
+# Open the setup script
+cat ../db/setup-aad-user.sql and setting up Azure AD access, initialize the database:
+
+```bash
+# Option 1: Using Azure AD authentication (recommended)
+# Connect with Azure Data Studio as Azure AD admin
+# Run ../db/schema.sql
+
+# Option 2: Using SQL authentication (if SQL admin credentials still configured)
+SQL_SERVER=$(terraform output -raw sql_server_fqdn)
+SQL_DB=$(terraform output -raw sql_database_name)
+
+# Connect with Azure Data Studio and run ../db/schema.sql
+```
+# Save to .env.local in project root (no secrets needed!)
 terraform output -raw env_file_content > ../.env.local
 
 # Verify file was created
 cat ../.env.local
 ```
+
+Note: With managed identity, no passwords or connection strings are needed in `.env.local`!
 
 ## 🗄️ Database Schema Setup
 
@@ -157,8 +181,7 @@ Or use **Azure Data Studio**:
 2. Open `../db/schema.sql`
 3. Execute the script
 
-## 🔄 Update Infrastructure
-
+##**Total**: ~$5-7/month (no Key Vault needed with managed identity!)
 ```bash
 # See what will change
 terraform plan
@@ -195,26 +218,25 @@ terraform destroy
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐
-│  Next.js Static │
-│  Site (Browser) │
-└────────┬────────┘
-         │
+┌────Managed Identity**: Function App uses system-assigned managed identity (no passwords!)
+2. **Azure AD Authentication**: SQL Database uses Entra ID authentication for Function App
+3. **SQL Firewall**: Only Azure services + your IP allowed
+4. **Blob Access**: Public read for images (required for display), write via managed identity
+5. **`.tfvars` Protected**: Added to `.gitignore`
+6. **Local Development**: Uses Azure CLI credentials (`az login`) - no secrets needed
     ┌────┴───────────────────┐
     │                        │
     ▼                        ▼
-┌──────────────┐    ┌─────────────────┐
-│ Blob Storage │    │  Function App   │
-│  (Images)    │    │  (Consumption)  │
-└──────────────┘    └────────┬────────┘
-                             │
-                    ┌────────┴────────┐
-                    │                 │
-                    ▼                 ▼
-            ┌──────────────┐  ┌──────────────┐
-            │  SQL Server  │  │  Key Vault   │
-            │  (Database)  │  │  (Secrets)   │
-            └──────────────┘  └──────────────┘
+┌──────────────┐    ┌─────────────────────┐
+│ Blob Storage │    │  Function App       │
+│  (Images)    │◄───│  (Managed Identity) │
+└──────────────┘    └─────────┬───────────┘
+                              │
+                              ▼
+                      ┌──────────────────┐
+                      │   SQL Server     │
+                      │   (Entra ID Auth)│
+                      └──────────────────┘
 ```
 
 ## 🐛 Troubleshooting
@@ -228,7 +250,13 @@ terraform destroy
 - Re-apply: `terraform apply`
 
 ### "Subscription not found"
-- Verify: `az account show`
+- **For managed identity**: Ensure you've run the Azure AD user setup script
+
+### "SQL authentication failed" (locally)
+- Run `az login` to authenticate with Azure CLI
+- Function code uses DefaultAzureCredential which checks Azure CLI credentials
+- **Note**: Key Vault is no longer used! Managed Identity provides direct access.
+- If you see this error, ensure you're using the updated Terraform configuration
 - Set correct subscription: `az account set --subscription "id"`
 
 ### "Key Vault access denied"
@@ -264,13 +292,14 @@ terraform refresh
 # Import existing resource
 terraform import azurerm_resource_group.main /subscriptions/SUB_ID/resourceGroups/RG_NAME
 ```
-
-## 🔗 Next Steps
-
-After infrastructure is deployed:
-
-1. ✅ Initialize database with schema (`db/schema.sql`)
-2. ✅ Copy environment variables to `.env.local`
+Set up Azure AD user for Function App in SQL Database (`db/setup-aad-user.sql`)
+2. ✅ Initialize database with schema (`db/schema.sql`)
+3. ✅ Copy environment variables to `.env.local`
+4. ✅ Install dependencies: `npm install` (adds @azure/identity)
+5. ⬜ Test Functions locally with `az login` for authentication
+6. ⬜ Deploy Function App code (see `../docs/deployment.md`)
+7. ⬜ Update CORS origins for production domain
+8. ⬜ Deploy Next.js frontend (Vercel/Azure SWA)o `.env.local`
 3. ⬜ Deploy Function App code (see `../docs/deployment.md`)
 4. ⬜ Test event submission locally
 5. ⬜ Update CORS origins for production domain

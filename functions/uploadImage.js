@@ -1,5 +1,6 @@
 const { app } = require('@azure/functions');
 const { BlobServiceClient } = require('@azure/storage-blob');
+const { DefaultAzureCredential, ManagedIdentityCredential } = require('@azure/identity');
 const { v4: uuid } = require('uuid');
 
 app.http('uploadImage', {
@@ -16,8 +17,23 @@ app.http('uploadImage', {
     context.log(`[${correlationId}] Image upload request received`);
 
     try {
-      // Get file from request body
-      const buffer = request.rawBody;
+      // Get file from request body - handle ReadableStream for local testing
+      let buffer;
+      
+      if (request.arrayBuffer) {
+        // Azure Functions v4 - use arrayBuffer method
+        const arrayBuffer = await request.arrayBuffer();
+        buffer = Buffer.from(arrayBuffer);
+      } else if (request.body instanceof Buffer) {
+        buffer = request.body;
+      } else if (request.rawBody) {
+        buffer = request.rawBody;
+      } else {
+        buffer = request.body;
+      }
+      
+      context.log(`[${correlationId}] Buffer size: ${buffer ? buffer.length : 0} bytes`);
+      
       if (!buffer || buffer.length === 0) {
         return {
           status: 400,
@@ -34,11 +50,15 @@ app.http('uploadImage', {
         };
       }
 
-      // Connect to Blob Storage
-      const blobServiceClient = BlobServiceClient.fromConnectionString(
-        process.env.BLOB_CONNECTION_STRING
+      // Connect to Blob Storage using managed identity (ManagedIdentityCredential in Azure, DefaultAzureCredential locally)
+      const isAzure = !!(process.env.MSI_ENDPOINT || process.env.IDENTITY_ENDPOINT || process.env.AZURE_WEBSITE_INSTANCE_ID);
+      const credential = isAzure ? new ManagedIdentityCredential() : new DefaultAzureCredential();
+      const blobServiceClient = new BlobServiceClient(
+        `https://${process.env.BLOB_ACCOUNT}.blob.core.windows.net`,
+        credential
       );
       const containerClient = blobServiceClient.getContainerClient(process.env.BLOB_CONTAINER);
+      context.log(`[${correlationId}] Connected to Blob Storage using managed identity`);
 
       // Generate unique filename
       const filename = `${uuid()}.jpg`;
@@ -62,9 +82,13 @@ app.http('uploadImage', {
 
     } catch (error) {
       context.log(`[${correlationId}] Error: ${error.message}`);
+      context.log(`[${correlationId}] Error stack: ${error.stack}`);
       return {
         status: 500,
-        jsonBody: { error: 'Failed to upload image' }
+        jsonBody: { 
+          error: 'Failed to upload image',
+          details: error.message 
+        }
       };
     }
   }

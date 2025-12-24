@@ -52,21 +52,34 @@ Provision Azure cloud infrastructure to support the Eventure event submission pl
 - [ ] Function App created with Consumption (Y1) plan (truly serverless)
 - [ ] Node.js 18 runtime configured
 - [ ] CORS configured for frontend origins
-- [ ] Environment variables injected (SQL, Blob, app config)
-- [ ] Managed identity enabled for Key Vault access
+- [ ] System-assigned managed identity enabled
 - [ ] Function App URL available for `NEXT_PUBLIC_API_BASE`
 
-### US4: Secure Secrets Management (P2)
+### US4: SQL Authentication via Managed Identity (P1)
 **As a** security-conscious developer  
-**I want** sensitive credentials stored in Key Vault  
-**So that** secrets are not exposed in configuration files or logs
+**I want** Azure Functions to authenticate to SQL using managed identity  
+**So that** no credentials are stored in configuration files or logs
 
 **Acceptance Criteria**:
-- [ ] Key Vault created with appropriate access policies
-- [ ] SQL admin password stored as secret
-- [ ] Blob connection string stored as secret
-- [ ] Function App uses managed identity to access secrets
-- [ ] Developer can access secrets via Azure CLI for local dev
+- [ ] Azure SQL configured with Entra ID authentication enabled
+- [ ] Azure AD user created for Function App's managed identity
+- [ ] Function App assigned appropriate SQL database role
+- [ ] Terraform provisions Azure AD user and role assignment
+- [ ] Function code uses access tokens instead of password
+- [ ] No SQL username/password in environment variables
+- [ ] Managed identity automatically rotates tokens
+
+### US5: Blob Storage Authentication via Managed Identity (P1)
+**As a** security-conscious developer  
+**I want** Azure Functions to access Blob Storage using managed identity  
+**So that** connection strings are not exposed in configuration
+
+**Acceptance Criteria**:
+- [ ] Storage account access configured for managed identity
+- [ ] Function App has "Storage Blob Data Contributor" role on storage account
+- [ ] Function code uses `@azure/identity` to authenticate
+- [ ] No storage connection string in environment variables
+- [ ] Access tokens automatically rotated by managed identity
 
 ### US5: Infrastructure as Code (P1)
 **As a** developer  
@@ -78,6 +91,17 @@ Provision Azure cloud infrastructure to support the Eventure event submission pl
 - [ ] Variables configurable via `terraform.tfvars`
 - [ ] Can use existing resource group OR create new one
 - [ ] Outputs provide all necessary connection details
+
+### US7: Local Development Support (P2)
+**As a** developer  
+**I want** to test Azure Functions locally with managed identity auth  
+**So that** I can develop without deploying to Azure constantly
+
+**Acceptance Criteria**:
+- [ ] Azure CLI authentication works with local development
+- [ ] Functions can use managed identity tokens locally (via Azure CLI)
+- [ ] Fallback to connection string for non-Azure environments documented
+- [ ] `.env.local` minimal (only contains non-secret values)
 - [ ] `.env.local` content auto-generated from outputs
 - [ ] Documentation includes deployment steps
 - [ ] `.gitignore` protects sensitive tfvars files
@@ -101,10 +125,10 @@ Provision Azure cloud infrastructure to support the Eventure event submission pl
 - **Function App**: Cold start < 3s, warm execution < 500ms
 
 ### Security
-- **SQL**: TLS 1.2+, firewall rules restrict access, admin password stored in Key Vault
-- **Blob Storage**: Public read for images only, CORS restricts origins
-- **Functions**: Managed identity (no hardcoded credentials), HTTPS only
-- **Key Vault**: RBAC controls, soft delete enabled
+- **SQL**: TLS 1.2+, firewall rules restrict access, Entra ID authentication only (no password-based)
+- **Blob Storage**: Public read for images only, CORS restricts origins, managed identity authentication
+- **Functions**: System-assigned managed identity (no hardcoded credentials), HTTPS only, token-based auth
+- **Access Control**: Azure RBAC for all resources, time-limited access tokens, no shared credentials
 
 ### Cost
 - **Development**: < $10/month
@@ -122,6 +146,8 @@ Provision Azure cloud infrastructure to support the Eventure event submission pl
 - CDN for blob storage
 - Database backups/disaster recovery (use Azure defaults)
 - Multiple regions/geo-replication
+- User-assigned managed identities (will use system-assigned)
+- Key Vault (deferred if managed identity covers all auth needs)
 
 ## Success Criteria
 
@@ -140,14 +166,14 @@ Provision Azure cloud infrastructure to support the Eventure event submission pl
    **A**: TBD - Evaluate if SWA meets our needs (combines static site + API)
 
 2. **Q**: Do we need a separate storage account for Function App internal storage?  
-   **A**: Yes (best practice), Functions need dedicated storage for state/logs
-
-3. **Q**: Should SQL admin password be auto-generated or user-provided?  
-   **A**: Auto-generate by default, allow override via tfvars
-
-4. **Q**: What Azure region should be default?  
+   **A**: What Azure region should be default?  
    **A**: `eastus` (low cost, high availability), configurable
 
+4. **Q**: Should we enable SQL database backups?  
+   **A**: Yes, Azure provides automatic backups for SQL Database (7-35 days retention)
+
+5. **Q**: How do we handle local development with managed identity?  
+   **A**: Use Azure CLI auth locally (`az login`), Functions runtime will use DefaultAzureCredential chain
 5. **Q**: Should we enable SQL database backups?  
    **A**: Yes, Azure provides automatic backups for SQL Database (7-35 days retention)
 
@@ -183,3 +209,47 @@ Provision Azure cloud infrastructure to support the Eventure event submission pl
 - [Azure Functions Pricing](https://azure.microsoft.com/pricing/details/functions/)
 - [Terraform Azure Provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)
 - [Azure Best Practices](https://learn.microsoft.com/azure/architecture/)
+
+## Implementation Details
+
+### Managed Identity Authentication Flow
+
+**SQL Database**:
+1. Function App has system-assigned managed identity enabled in Terraform
+2. Terraform creates an Azure AD user corresponding to the Function App identity
+3. Terraform assigns SQL role to the AD user (db_owner for dev, more restricted for prod)
+4. Function code uses `@azure/identity` library to get access token
+5. Token is passed to SQL connection using `accessToken` authentication type
+6. Token automatically rotated by managed identity; code handles refresh transparently
+
+**Blob Storage**:
+1. Function App identity gets "Storage Blob Data Contributor" role assignment
+2. Function code uses `@azure/identity` to get access token
+3. `BlobServiceClient.fromTokenCredential()` used instead of connection string
+4. Token is automatically managed by the identity library
+
+### Local Development Flow
+
+For developers testing locally:
+1. Developer runs `az login` via Azure CLI (authenticates with their own identity)
+2. Functions runtime uses `DefaultAzureCredential` chain:
+   - First checks for environment variables (for CI/CD)
+   - Then checks Azure CLI cached token
+   - Falls back to other credential types
+3. Developer must have permissions on resources they're testing
+4. No secrets needed in `.env.local` for Managed Identity auth
+
+### Environment Variables
+
+**Needed (minimal)**:
+```
+SQL_SERVER=sql-eventure-dev.database.windows.net
+SQL_DATABASE=sqldb-eventure-dev
+BLOB_ACCOUNT=eventuredevsa
+BLOB_CONTAINER=events-images
+```
+
+**NOT needed anymore**:
+- `SQL_USER`
+- `SQL_PASSWORD`
+- `BLOB_CONNECTION_STRING`

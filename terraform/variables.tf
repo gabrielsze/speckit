@@ -1,7 +1,7 @@
 variable "subscription_id" {
   description = "Azure subscription ID where resources will be created"
   type        = string
-  
+
   validation {
     condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", var.subscription_id))
     error_message = "Subscription ID must be a valid GUID format."
@@ -12,7 +12,7 @@ variable "project_name" {
   description = "Project name prefix for all resources"
   type        = string
   default     = "eventure"
-  
+
   validation {
     condition     = length(var.project_name) <= 10 && can(regex("^[a-z][a-z0-9]*$", var.project_name))
     error_message = "Project name must be lowercase alphanumeric, start with letter, max 10 chars."
@@ -23,7 +23,7 @@ variable "environment" {
   description = "Environment name (dev, staging, prod)"
   type        = string
   default     = "dev"
-  
+
   validation {
     condition     = contains(["dev", "staging", "prod"], var.environment)
     error_message = "Environment must be dev, staging, or prod."
@@ -46,7 +46,7 @@ variable "existing_resource_group_name" {
   description = "Name of existing resource group (required if use_existing_resource_group = true)"
   type        = string
   default     = ""
-  
+
   validation {
     condition     = var.use_existing_resource_group == false || var.existing_resource_group_name != ""
     error_message = "existing_resource_group_name must be provided when use_existing_resource_group is true."
@@ -114,7 +114,7 @@ variable "log_level" {
   description = "Application log level"
   type        = string
   default     = "info"
-  
+
   validation {
     condition     = contains(["debug", "info", "warn", "error"], var.log_level)
     error_message = "Log level must be debug, info, warn, or error."

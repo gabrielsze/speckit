@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@azure/identity": "^4.0.0",
     "@azure/storage-blob": "^12.24.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.6",
