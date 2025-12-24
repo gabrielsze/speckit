@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=<YOUR_STORAGE_ACCOUNT>;AccountKey=<YOUR_ACCOUNT_KEY>;EndpointSuffix=core.windows.net",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "FUNCTIONS_WORKER_RUNTIME_VERSION": "18",
+    "SQL_SERVER": "<YOUR_SQL_SERVER>.database.windows.net",
+    "SQL_DATABASE": "<YOUR_DATABASE_NAME>",
+    "SQL_USER": "<YOUR_SQL_USER>",
+    "SQL_PASSWORD": "<YOUR_SQL_PASSWORD>",
+    "BLOB_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=<YOUR_BLOB_ACCOUNT>;AccountKey=<YOUR_BLOB_KEY>;EndpointSuffix=core.windows.net",
+    "BLOB_CONTAINER": "events-images"
+  }
+}

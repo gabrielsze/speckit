@@ -47,6 +47,10 @@ tmp/
 # ---- Images Optimization Cache (if added later) ----
 .images-cache/
 
+# ---- Azure Functions & Secrets ----
+functions/local.settings.json
+node_modules/
+
 # ---- Misc ----
 # Ignore exported static HTML if rebuilding often (optional)
 # export/
