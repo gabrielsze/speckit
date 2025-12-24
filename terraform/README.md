@@ -11,8 +11,10 @@ This directory contains Terraform configuration for deploying Azure infrastructu
 - **Azure SQL Server**: SQL Server instance with Entra ID authentication (`sql-eventure-dev`)
 - **Azure SQL Database**: Database for submitted events (`sqldb-eventure-dev`)
 - **SQL Firewall Rules**: Allow Azure services and optional developer IP
-- **Function App**: Serverless API endpoints with system-assigned managed identity (`func-eventure-dev`)
+- **Function App**: Serverless API endpoints (Node 20 runtime) with system-assigned managed identity (`func-eventure-dev`)
 - **Role Assignments**: Storage Blob Data Contributor for Function App
+
+**Security**: All authentication uses Azure Managed Identity with Entra ID tokens. No passwords or connection strings stored.
 
 ## 🚀 Prerequisites
 
@@ -297,10 +299,10 @@ Set up Azure AD user for Function App in SQL Database (`db/setup-aad-user.sql`)
 3. ✅ Copy environment variables to `.env.local`
 4. ✅ Install dependencies: `npm install` (adds @azure/identity)
 5. ⬜ Test Functions locally with `az login` for authentication
-6. ⬜ Deploy Function App code (see `../docs/deployment.md`)
+6. ⬜ Deploy Function App code (see `../docs/DEPLOYMENT.md`)
 7. ⬜ Update CORS origins for production domain
 8. ⬜ Deploy Next.js frontend (Vercel/Azure SWA)o `.env.local`
-3. ⬜ Deploy Function App code (see `../docs/deployment.md`)
+3. ⬜ Deploy Function App code (see `../docs/DEPLOYMENT.md`)
 4. ⬜ Test event submission locally
 5. ⬜ Update CORS origins for production domain
 6. ⬜ Deploy Next.js frontend (Vercel/Azure SWA)

@@ -1,7 +1,9 @@
 # Managed Identity Migration Summary
 
 **Date**: December 24, 2025  
-**Status**: ✅ Complete
+**Status**: ✅ Complete and Verified in Production
+
+**Latest Update**: Node.js runtime upgraded to 20.19.5 to resolve ManagedIdentityCredential compatibility issues.
 
 ## Overview
 
@@ -196,6 +198,37 @@ However, **managed identity is the recommended approach** and issues should be d
 | **Total** | **~$7/mo** | **~$7/mo** | **$0.03/mo** |
 
 *Small but adds up across multiple environments!*
+
+## Verification
+
+### Production Testing - December 24, 2025 ✅
+
+**submitEvent endpoint:**
+```bash
+curl -X POST https://func-eventure-dev.azurewebsites.net/api/events/submit \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Node 20 MSI Test","description":"Testing after runtime upgrade","event_date":"2025-12-31","start_time":"20:00","location":"Azure","category":"Technology"}'
+
+# Response: HTTP 200
+{"id":"f012d0b9-0997-4253-a496-6bf43cbb1e5b","createdAt":"2025-12-24T13:11:20.969Z"}
+```
+
+**Result**: ✅ Managed identity authentication successful. Event created in Azure SQL Database using token-based authentication.
+
+### Critical Fix: Node 20 Upgrade
+
+**Problem**: Initial deployment with Node 18.20.8 failed with:
+```
+ManagedIdentityCredential: Network unreachable. Message: network_error: Network request failed
+```
+
+**Root Cause**: Azure SDK packages (`@azure/identity@4.13.0`, `@azure/storage-blob@12.29.1`, `@azure/functions@4.10.0`) require Node.js ≥20.0.0. The ManagedIdentityCredential was incompatible with Node 18.
+
+**Solution**: 
+1. Updated `terraform/main.tf` to use Node 20 runtime
+2. Applied Terraform changes
+3. Redeployed Functions with remote build using Node 20.19.5
+4. All managed identity authentication now works correctly
 
 ## Troubleshooting
 

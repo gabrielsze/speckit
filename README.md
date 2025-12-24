@@ -21,9 +21,10 @@ A Next.js 14 site with event discovery, user submissions, and an Azure-backed AP
 
 ## 📋 Prerequisites
 
-- Node.js 20.9.0+ for the Next.js app
+- Node.js 20.9.0+ for both Next.js app and Azure Functions
 - npm (latest)
-- Azure CLI and Azure Functions Core Tools (for API deployment/debugging)
+- Azure CLI (authenticated with `az login`) for managed identity support
+- Azure Functions Core Tools v4 (for API deployment/debugging)
 - Terraform CLI (if provisioning infra)
 
 ## 🛠️ Quickstart (Frontend)
@@ -42,29 +43,40 @@ npm run dev
 
 ## 🔌 API Endpoints (Azure Functions)
 
-- POST `/api/submit-event` — Inserts an event into Azure SQL. Expects snake_case fields: `title`, `description`, `event_date`, `start_time`, `end_time?`, `location`, `category`, `contact_email?`, `contact_phone?`, `website?`, `image_url?`.
-- POST `/api/upload-image` — Uploads an image to Blob Storage; returns `imageUrl`.
+- POST `/api/events/submit` — Inserts an event into Azure SQL using managed identity authentication. Expects snake_case fields: `title`, `description`, `event_date`, `start_time`, `end_time?`, `location`, `category`, `contact_email?`, `contact_phone?`, `website?`, `image_url?`.
+- POST `/api/events/upload-image` — Uploads an image to Blob Storage using managed identity authentication; returns `imageUrl`.
 
 Sources: functions/submitEvent.js, functions/uploadImage.js, entrypoint functions/index.js.
+
+**Authentication**: Both endpoints use Azure Managed Identity with Entra ID (no passwords or connection strings needed).
 
 ## 🌐 Environment Variables
 
 Frontend (.env.local):
 - `NEXT_PUBLIC_API_BASE` — Base URL of the Function App (e.g., `https://func-eventure-dev.azurewebsites.net/api`).
 
-Functions (App Settings):
-- `SQL_SERVER`, `SQL_DATABASE`, `SQL_USER`, `SQL_PASSWORD`, `SQL_ENCRYPT=true`
-- `BLOB_ACCOUNT`, `BLOB_CONTAINER=events-images`, `BLOB_CONNECTION_STRING`
+Functions (App Settings) - **Passwordless with Managed Identity**:
+- `SQL_SERVER`, `SQL_DATABASE` — Database connection details (no username/password needed)
+- `BLOB_ACCOUNT`, `BLOB_CONTAINER=events-images` — Storage details (no connection string needed)
+- `FUNCTIONS_WORKER_RUNTIME=node`, `WEBSITE_NODE_DEFAULT_VERSION=~20`
 
-Database schema: db/schema.sql (table `submitted_events` with time columns). Keep secrets in Azure App Settings or Key Vault; do not commit them.
+Authentication uses Azure Managed Identity with tokens automatically acquired from Entra ID.
+
+For local development: Authenticate with `az login` and Azure CLI credentials are used automatically.
+
+Database schema: db/schema.sql (table `submitted_events` with time columns).
 
 ## 🏗️ Infrastructure (Terraform)
 
 Terraform under terraform/ provisions:
-- Storage account (blob container `events-images`)
-- Azure SQL Server + Database (Basic tier)
-- App Service plan (Y1) + Function App (Node 18 runtime)
-- Key Vault (available for future secret references)
+- Storage accounts (events images + Function App storage)
+- Azure SQL Server + Database (Basic tier) with Entra ID authentication
+- App Service plan (Y1) + Function App (Node 20 runtime)
+- System-assigned managed identity with RBAC role assignments
+- Storage Blob Data Contributor role for Function App
+- SQL Server firewall rules
+
+**Note**: SQL AAD user must be created manually after Terraform applies (see `db/setup-aad-user.sql`).
 
 Usage (baseline):
 ```bash
@@ -96,8 +108,10 @@ Outputs map to Function App settings and .env.local.
 ## 🚨 Known Issues & Notes
 
 - Frontend expects the Function App URL in `NEXT_PUBLIC_API_BASE` (no relative API routes in production static export).
-- Function runtime is Node 18; frontend uses Node 20+ locally.
+- **Both frontend and Functions use Node 20+** for compatibility with Azure SDK requirements.
 - Image uploads require valid MIME and size limits (see functions/uploadImage.js).
+- Azure SQL AAD user creation requires manual setup after Terraform (see `db/setup-aad-user.sql`).
+- Local development requires Azure CLI authentication (`az login`).
 
 ## 📁 Project Structure (abridged)
 

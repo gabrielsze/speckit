@@ -1,6 +1,8 @@
 # Azure Functions for Eventure
 
-Node.js 18 Azure Functions for event submission and image upload.
+Node.js 20 Azure Functions for event submission and image upload.
+
+**Authentication**: Uses Azure Managed Identity with Entra ID for passwordless access to Azure SQL and Blob Storage.
 
 ## Local Setup
 
@@ -21,17 +23,18 @@ Create `local.settings.json` with:
   "Values": {
     "SQL_SERVER": "sql-eventure-dev.database.windows.net",
     "SQL_DATABASE": "sqldb-eventure-dev",
-    "SQL_USER": "sqladmin",
-    "SQL_PASSWORD": "...",
-    "BLOB_CONNECTION_STRING": "DefaultEndpointsProtocol=https;...",
+    "BLOB_ACCOUNT": "eventuredevsa",
     "BLOB_CONTAINER": "events-images"
   }
 }
 ```
 
-Or copy from root `.env.local`:
+**No passwords or connection strings needed!** Authentication uses Azure Managed Identity.
+
+For local development, ensure you're authenticated:
 ```bash
-grep "SQL_\|BLOB_" ../.env.local
+az login
+az account set --subscription "your-subscription-id"
 ```
 
 ## Deployment
