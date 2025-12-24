@@ -88,7 +88,7 @@ chore: add .gitignore entries for build artifacts
 ## Audit & Traceability
 To audit progress:
 1. Scan `tasks.md` for unchecked items or BLOCKED notes.
-2. Cross-reference with implementation summary (`IMPLEMENTATION_SUMMARY.md`).
+2. Cross-reference with implementation summary (`docs/IMPLEMENTATION_SUMMARY.md`).
 3. Confirm data-model interfaces exist in `types/` and are still correct.
 4. Review `contracts/components.md` for drift vs actual component props.
 

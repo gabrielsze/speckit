@@ -134,7 +134,7 @@ US2 (Search & Mobile): Search narrows list by title/description, mobile single-c
 ### Implementation Status
 ✅ **Complete** - All core functionality implemented and type-checked  
 ⚠️ **Blocked** - Runtime testing requires Node.js 20.9.0+ upgrade  
-📝 **Documentation** - README.md, audit.md, and IMPLEMENTATION_SUMMARY.md created
+📝 **Documentation** - README.md, audit.md, and docs/IMPLEMENTATION_SUMMARY.md created
 
 ### Next Actions
 1. Upgrade Node.js to 20.9.0 or higher
