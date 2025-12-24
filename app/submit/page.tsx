@@ -153,6 +153,7 @@ export default function SubmitEventPage() {
 
       if (!response.ok) {
         setErrors(data.fieldErrors || { submit: data.message || 'Submission failed' });
+        window.scrollTo(0, 0);
         return;
       }
 
@@ -161,6 +162,7 @@ export default function SubmitEventPage() {
         `Event submitted successfully! Event ID: ${data.id}. Your event will appear on the events listing shortly.`
       );
       setErrors({});
+      window.scrollTo(0, 0);
 
       // Reset form
       setTimeout(() => {
@@ -184,6 +186,7 @@ export default function SubmitEventPage() {
       setErrors({
         submit: error instanceof Error ? error.message : 'An error occurred',
       });
+      window.scrollTo(0, 0);
     } finally {
       setIsSubmitting(false);
     }
